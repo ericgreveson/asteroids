@@ -53,33 +53,6 @@
       // Update positions
       ast.pos.x += ast.speed.x * frameDelta;
       ast.pos.y += ast.speed.y * frameDelta;
-    },
-
-    // Test if asteroid is beyond canvas
-    // ast: Asteroid to test
-    // return: True if beyond, false otherwise
-    testBeyondCanvas: function (ast) {
-      // left edge test
-      if (ast.speed.x <= 0 && (ast.pos.x + ast.radius) < 0) {
-        return true;
-      }
-
-      // right edge test
-      if (ast.speed.x >= 0 && (ast.pos.x - ast.radius) > canvas.canvas.width) {
-        return true;
-      }
-
-      // top edge test
-      if (ast.speed.y <= 0 && (ast.pos.y + ast.radius) < 0) {
-        return true;
-      }
-
-      // bottom edge test
-      if (ast.speed.y >= 0 && (ast.pos.y - ast.radius) > canvas.canvas.height) {
-        return true;
-      }
-
-      return false;
-    },
+    }
   };
 });

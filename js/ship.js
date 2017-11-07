@@ -1,15 +1,18 @@
-﻿define(["canvas", "input"], function (canvas, input) {
-  return {
-    // Max speed in canvas units per second
-    maxSpeed: 200,
+﻿define(["canvas", "input", "mathutil"], function (canvas, input, mathutil) {
+  var ship = {
+    // Acceleration in canvas units per second per second when thrusting
+    acceleration: 100,
+
+    // Rotation speed in radians per second, when rotating
+    rotationSpeed: Math.PI,
 
     // "Radius" of ship
     radius: 20,
 
     // Current ship position
     pos: {
-      x: 100,
-      y: 400
+      x: canvas.canvas.width / 2,
+      y: canvas.canvas.height / 2
     },
 
     // Current ship speed
@@ -18,38 +21,74 @@
       y: 0
     },
 
+    // Current ship angle, in radians, from the +X axis
+    angle: 0,
+
     // Draw spaceship
     draw: function () {
+      canvas.context.save();
       canvas.context.fillStyle = "#ffffff";
-      canvas.context.fillRect(this.pos.x - this.radius, this.pos.y - this.radius / 2, this.radius * 2, this.radius);
+      canvas.context.translate(ship.pos.x, ship.pos.y);
+      canvas.context.rotate(ship.angle);
+      canvas.context.scale(ship.radius, ship.radius);
+      canvas.context.beginPath();
+      canvas.context.moveTo(-1.0, -0.5);
+      canvas.context.lineTo(-0.5, -0.5);
+      canvas.context.lineTo(1.0, 0.0);
+      canvas.context.lineTo(-0.5, 0.5);
+      canvas.context.lineTo(-1.0, 0.5);
+      canvas.context.closePath();
+      canvas.context.fill();
+      canvas.context.restore();
     },
 
     // Update ship parameters
     // frameDelta: current frame time step delta, in seconds
     update: function (frameDelta) {
-      // Update vertical speed
-      this.speed.y = 0;
-
-      if (input.keyState.upArrow) {
-        this.speed.y -= this.maxSpeed;
+      // Update angle
+      var rotationDelta = 0;
+      if (input.keys.leftArrow.pressed) {
+        rotationDelta -= ship.rotationSpeed * frameDelta;
       }
 
-      if (input.keyState.downArrow) {
-        this.speed.y += this.maxSpeed;
+      if (input.keys.rightArrow.pressed) {
+        rotationDelta += ship.rotationSpeed * frameDelta;
+      }
+
+      ship.angle = mathutil.wrapAngle(ship.angle + rotationDelta);
+
+      // Update speed
+      if (input.keys.upArrow.pressed) {
+        ship.speed.x += Math.cos(ship.angle) * ship.acceleration * frameDelta;
+        ship.speed.y += Math.sin(ship.angle) * ship.acceleration * frameDelta;
       }
 
       // Update position
-      this.pos.x += this.speed.x * frameDelta;
-      this.pos.y += this.speed.y * frameDelta;
+      ship.pos.x += ship.speed.x * frameDelta;
+      ship.pos.y += ship.speed.y * frameDelta;
 
-      // Clamp Y values
-      if (this.pos.y < this.radius) {
-        this.pos.y = this.radius;
+      // We can fly right round the map! Wrap X and Y values
+      if (ship.pos.y < 0) {
+        ship.pos.y = canvas.canvas.height;
+      } else if (ship.pos.y >= canvas.canvas.height) {
+        ship.pos.y = 0;
       }
 
-      if (this.pos.y > canvas.height - this.radius) {
-        this.pos.y = canvas.height - this.radius;
+      if (ship.pos.x < 0) {
+        ship.pos.x = canvas.canvas.width;
+      } else if (ship.pos.x >= canvas.canvas.width) {
+        ship.pos.x = 0;
       }
     },
+
+    // Get the ship gun position
+    gunPosition: function () {
+      return {
+        x: ship.pos.x + Math.cos(ship.angle) * ship.radius,
+        y: ship.pos.y + Math.sin(ship.angle) * ship.radius
+      };
+    }
   };
+
+  return ship;
 });

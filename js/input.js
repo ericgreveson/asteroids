@@ -1,42 +1,52 @@
 ﻿define(["jquery"], function ($) {
-  return {
-    // Key code constants
-    keyCodeLeftArrow: 37,
-    keyCodeUpArrow: 38,
-    keyCodeRightArrow: 39,
-    keyCodeDownArrow: 40,
-
+  var input = {
     // Current key state
-    keyState: {
-      upArrow: false,
-      downArrow: false
+    keys: {
+      leftArrow: {
+        pressed: false,
+        code: 37
+      },
+      upArrow: {
+        pressed: false,
+        code: 38
+      },
+      rightArrow: {
+        pressed: false,
+        code: 39
+      },
+      downArrow: {
+        pressed: false,
+        code: 40
+      },
+      spaceBar: {
+        pressed: false,
+        code: 32
+      }
     },
 
     // Create keyboard handlers
     createKeyboardHandlers: function () {
-      var input = this;
-
       // Key down handlers
       $(document).keydown(function (event) {
-        if (event.which == input.keyCodeUpArrow) {
-          input.keyState.upArrow = true;
-          event.preventDefault();
-        } else if (event.which == input.keyCodeDownArrow) {
-          input.keyState.downArrow = true;
-          event.preventDefault();
+        for (key in input.keys) {
+          if (event.which == input.keys[key].code) {
+            input.keys[key].pressed = true;
+            event.preventDefault();
+          }
         }
       });
 
       // Key up handlers
       $(document).keyup(function (event) {
-        if (event.which == input.keyCodeUpArrow) {
-          input.keyState.upArrow = false;
-          event.preventDefault();
-        } else if (event.which == input.keyCodeDownArrow) {
-          input.keyState.downArrow = false;
-          event.preventDefault();
+        for (key in input.keys) {
+          if (event.which == input.keys[key].code) {
+            input.keys[key].pressed = false;
+            event.preventDefault();
+          }
         }
       });
     }
   };
+
+  return input;
 });
