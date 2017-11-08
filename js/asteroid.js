@@ -1,16 +1,11 @@
-﻿define(["canvas", "material"], function (canvas, material) {
-  return {
+﻿define(["canvas", "material", "mathutil"], function (canvas, material, mathutil) {
+  let asteroid = {
     // Constants
     minRadius: 20,
     maxRadius: 100,
-    minSpeed: {
-      x: 100,
-      y: -20
-    },
-    maxSpeed: {
-      x: 300,
-      y: 20
-    },
+    minSpeed: 100,
+    maxSpeed: 300,
+    velocityAngleSpread: 0.7,
 
     // Draw asteroid
     // ast: Asteroid to draw
@@ -26,12 +21,36 @@
     // return: New asteroid object
     create: function (scale) {
       // Create asteroid
-      let radius = scale * this.minRadius * (1 + Math.random() * (this.maxRadius / this.minRadius - 1));
+      let radius = scale * asteroid.minRadius * (1 + Math.random() * (asteroid.maxRadius / asteroid.minRadius - 1));
       let mat = material.iron;
-      let xPos = canvas.canvas.width + radius;
-      let yPos = Math.random() * canvas.canvas.height;
-      let xSpeed = -(this.minSpeed.x + Math.random() * (this.maxSpeed.x - this.minSpeed.x));
-      let ySpeed = -(this.minSpeed.y + Math.random() * (this.maxSpeed.y - this.minSpeed.y));
+
+      // Put it at a random place just outside the canvas, heading in
+      let spawnAngle = Math.random() * Math.PI * 2;
+      let canvasXEdgeAngle = Math.atan2(canvas.canvas.height, canvas.canvas.width);
+      let xPos = 0;
+      let yPos = 0;
+      if (spawnAngle > Math.PI * 2 - canvasXEdgeAngle || spawnAngle < canvasXEdgeAngle) {
+        // Spawn it off the right edge
+        xPos = radius + canvas.canvas.width;
+        yPos = 0.5 * canvas.canvas.height + (xPos - 0.5 * canvas.canvas.width) * Math.tan(spawnAngle);
+      } else if (spawnAngle < Math.PI - canvasXEdgeAngle) {
+        // Spawn it off the bottom edge
+        yPos = canvas.canvas.height + radius;
+        xPos = 0.5 * canvas.canvas.width + (yPos - 0.5 * canvas.canvas.height) / Math.tan(spawnAngle);
+      } else if (spawnAngle < Math.PI + canvasXEdgeAngle) {
+        // Spawn it off the left edge
+        xPos = -radius;
+        yPos = 0.5 * canvas.canvas.height + (xPos - 0.5 * canvas.canvas.width) * Math.tan(spawnAngle);
+      } else {
+        // Spawn it off the top edge
+        yPos = -radius;
+        xPos = 0.5 * canvas.canvas.width + (yPos - 0.5 * canvas.canvas.height) / Math.tan(spawnAngle);
+      }
+
+      let moveAngle = mathutil.wrapAngle(spawnAngle + Math.PI + (Math.random() - 0.5) * asteroid.velocityAngleSpread);
+      let speed = asteroid.minSpeed + Math.random() * (asteroid.maxSpeed - asteroid.minSpeed);
+      let xSpeed = Math.cos(moveAngle) * speed;
+      let ySpeed = Math.sin(moveAngle) * speed;
 
       return {
         material: mat,
@@ -56,4 +75,6 @@
       ast.pos.y += ast.speed.y * frameDelta;
     }
   };
+
+  return asteroid;
 });

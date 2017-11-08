@@ -1,7 +1,10 @@
 ﻿define(["canvas", "input", "mathutil"], function (canvas, input, mathutil) {
   var ship = {
-    // Acceleration in canvas units per second per second when thrusting
-    acceleration: 100,
+    // Engine thrust in N
+    thrust: 2000000,
+
+    // Mass in kg
+    mass: 20000,
 
     // Rotation speed in radians per second, when rotating
     rotationSpeed: Math.PI,
@@ -59,8 +62,9 @@
 
       // Update speed
       if (input.keys.upArrow.pressed) {
-        ship.speed.x += Math.cos(ship.angle) * ship.acceleration * frameDelta;
-        ship.speed.y += Math.sin(ship.angle) * ship.acceleration * frameDelta;
+        let accel = ship.thrust / ship.mass;
+        ship.speed.x += Math.cos(ship.angle) * accel * frameDelta;
+        ship.speed.y += Math.sin(ship.angle) * accel * frameDelta;
       }
 
       // Update position

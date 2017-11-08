@@ -3,8 +3,9 @@ function ($, bullet, canvas, collision, input, overlays, ship, asteroid, timing)
   // Game namespace
   let game = {
     // Game variables
-    score: 0,
+    cash: 0,
     lives: 3,
+    level: 0,
     asteroids: [],
 
     // Fire rate is in bullets per second
@@ -12,15 +13,25 @@ function ($, bullet, canvas, collision, input, overlays, ship, asteroid, timing)
     bullets: [],
     lastBulletCreatedTime: new Date().getTime(),
 
+    // Level update
+    // frameDelta: Time elapsed since previous frame, in seconds
+    updateLevel: function (frameDelta) {
+      // Do we need to progress to the next level?
+      if (game.level == 0 || game.asteroids.length == 0) {
+        // Level up
+        game.level += 1;
+
+        // Generate new asteroids
+        let newAsteroidCount = 1 + game.level * 2;
+        for (let i = 0; i < newAsteroidCount; ++i) {
+          game.asteroids.push(asteroid.create(1.0));
+        }
+      }
+    },
+
     // Asteroid update
     // frameDelta: Time elapsed since previous frame, in seconds
     updateAsteroids: function (frameDelta) {
-      // Maybe generate new asteroids
-      let desiredAsteroidCount = Math.min(Math.floor(timing.gameTime()), 30);
-      while (game.asteroids.length < desiredAsteroidCount) {
-        game.asteroids.push(asteroid.create(1.0));
-      }
-
       // Update all asteroids
       let asteroidsToKeep = [];
       for (let ast of game.asteroids) {
@@ -102,8 +113,8 @@ function ($, bullet, canvas, collision, input, overlays, ship, asteroid, timing)
     // Interval handler
     // frameDelta: Time in seconds since last update
     update: function (frameDelta) {
-      // Update score
-      game.score += frameDelta * 10;
+      // Update level
+      game.updateLevel(frameDelta);
 
       // Update ship state
       ship.update(frameDelta);
@@ -131,7 +142,7 @@ function ($, bullet, canvas, collision, input, overlays, ship, asteroid, timing)
       }
 
       // Draw overlays
-      overlays.draw(game.score, game.lives);
+      overlays.draw(game.cash, game.lives);
     },
 
     // Program entry point

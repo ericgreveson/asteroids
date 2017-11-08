@@ -1,5 +1,5 @@
 ﻿define(function () {
-  // HTML element that this maps to
+  // HTML element that this maps to. Canvas units map to metres in the game.
   let canvasId = "gameCanvas";
   let canvas = document.getElementById(canvasId);
 
