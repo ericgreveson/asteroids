@@ -1,5 +1,5 @@
 ﻿define(["canvas"], function (canvas) {
-  var bullet = {
+  let bullet = {
     // Radius of a bullet
     radius: 3,
 
@@ -13,8 +13,8 @@
     // return: New bullet object
     create: function (pos, angle, speed) {
       // Create bullet
-      var xSpeed = speed.x + Math.cos(angle) * bullet.speed;
-      var ySpeed = speed.y + Math.sin(angle) * bullet.speed;
+      let xSpeed = speed.x + Math.cos(angle) * bullet.speed;
+      let ySpeed = speed.y + Math.sin(angle) * bullet.speed;
 
       return {
         color: "#00ff00",

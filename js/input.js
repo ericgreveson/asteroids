@@ -1,5 +1,5 @@
 ﻿define(["jquery"], function ($) {
-  var input = {
+  let input = {
     // Current key state
     keys: {
       leftArrow: {

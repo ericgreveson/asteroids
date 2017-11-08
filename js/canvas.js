@@ -1,7 +1,7 @@
 ﻿define(function () {
   // HTML element that this maps to
-  var canvasId = "gameCanvas";
-  var canvas = document.getElementById(canvasId);
+  let canvasId = "gameCanvas";
+  let canvas = document.getElementById(canvasId);
 
   return {
     id: canvasId,

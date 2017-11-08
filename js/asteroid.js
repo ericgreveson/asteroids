@@ -1,4 +1,4 @@
-﻿define(["canvas"], function (canvas) {
+﻿define(["canvas", "material"], function (canvas, material) {
   return {
     // Constants
     minRadius: 20,
@@ -15,7 +15,7 @@
     // Draw asteroid
     // ast: Asteroid to draw
     draw: function (ast) {
-      canvas.context.fillStyle = ast.color;
+      canvas.context.fillStyle = ast.material.color;
       canvas.context.beginPath();
       canvas.context.arc(ast.pos.x, ast.pos.y, ast.radius, 0, 2 * Math.PI);
       canvas.context.fill();
@@ -26,14 +26,15 @@
     // return: New asteroid object
     create: function (scale) {
       // Create asteroid
-      var radius = scale * this.minRadius * (1 + Math.random() * (this.maxRadius / this.minRadius - 1));
-      var xPos = canvas.canvas.width + radius;
-      var yPos = Math.random() * canvas.canvas.height;
-      var xSpeed = -(this.minSpeed.x + Math.random() * (this.maxSpeed.x - this.minSpeed.x));
-      var ySpeed = -(this.minSpeed.y + Math.random() * (this.maxSpeed.y - this.minSpeed.y));
+      let radius = scale * this.minRadius * (1 + Math.random() * (this.maxRadius / this.minRadius - 1));
+      let mat = material.iron;
+      let xPos = canvas.canvas.width + radius;
+      let yPos = Math.random() * canvas.canvas.height;
+      let xSpeed = -(this.minSpeed.x + Math.random() * (this.maxSpeed.x - this.minSpeed.x));
+      let ySpeed = -(this.minSpeed.y + Math.random() * (this.maxSpeed.y - this.minSpeed.y));
 
       return {
-        color: "#ff00ff",
+        material: mat,
         radius: radius,
         pos: {
           x: xPos,

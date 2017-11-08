@@ -1,12 +1,8 @@
-﻿define(["jquery", "bullet", "canvas", "collision", "input", "overlays", "ship", "asteroid"],
-  function ($, bullet, canvas, collision, input, overlays, ship, asteroid) {
+﻿define(["jquery", "bullet", "canvas", "collision", "input", "overlays", "ship", "asteroid", "timing"],
+function ($, bullet, canvas, collision, input, overlays, ship, asteroid, timing) {
   // Game namespace
-  var game = {
+  let game = {
     // Game variables
-    interval: null,
-    startTime: new Date().getTime(),
-    lastTime: new Date().getTime(),
-    frameTime: new Date().getTime(),
     score: 0,
     lives: 3,
     asteroids: [],
@@ -20,24 +16,23 @@
     // frameDelta: Time elapsed since previous frame, in seconds
     updateAsteroids: function (frameDelta) {
       // Maybe generate new asteroids
-      var gameTime = (game.frameTime - game.startTime) / 1000;
-      var desiredAsteroidCount = Math.min(Math.floor(gameTime), 30);
+      let desiredAsteroidCount = Math.min(Math.floor(timing.gameTime()), 30);
       while (game.asteroids.length < desiredAsteroidCount) {
         game.asteroids.push(asteroid.create(1.0));
       }
 
       // Update all asteroids
-      var asteroidsToKeep = [];
-      $.each(game.asteroids, function (index, ast) {
+      let asteroidsToKeep = [];
+      for (let ast of game.asteroids) {
         asteroid.update(ast, frameDelta);
 
         // Kill those asteroids which are outside and going away from the visible space
-        var kill = collision.testSphereBeyondCanvas(ast.pos, ast.radius, ast.speed);
+        let kill = collision.testSphereBeyondCanvas(ast.pos, ast.radius, ast.speed);
         if (!kill) {
           // Collision-detect with all other asteroids in the preserve-list
-          var asteroidsToDelete = [];
+          let asteroidsToDelete = [];
           $.each(asteroidsToKeep, function (index, otherAst) {
-            var colliding = collision.detectSphereSphere(ast.pos, ast.radius, otherAst.pos, otherAst.radius);
+            let colliding = collision.detectSphereSphere(ast.pos, ast.radius, otherAst.pos, otherAst.radius);
             if (colliding) {
               // Break up both asteroids. Remove the existing other asteroid, and don't add this one
               asteroidsToDelete.push(index);
@@ -49,7 +44,7 @@
             asteroidsToKeep.push(ast);
           }
         }
-      });
+      }
       game.asteroids = asteroidsToKeep;
 
       // Collision-detect with ship
@@ -70,23 +65,23 @@
     updateBullets: function (frameDelta) {
       if (input.keys.spaceBar.pressed) {
         // Check enough time has elapsed
-        if ((game.frameTime - game.lastBulletCreatedTime) / 1000 > 1.0 / game.fireRate) {
+        if ((timing.frameTime - game.lastBulletCreatedTime) / 1000 > 1.0 / game.fireRate) {
           game.bullets.push(bullet.create(ship.gunPosition(), ship.angle, ship.speed));
-          game.lastBulletCreatedTime = game.frameTime;
+          game.lastBulletCreatedTime = timing.frameTime;
         }
       }
 
       // Update all bullets
-      var bulletsToKeep = [];
-      $.each(game.bullets, function (index, blt) {
+      let bulletsToKeep = [];
+      for (let blt of game.bullets) {
         bullet.update(blt, frameDelta);
 
         // Kill those bullets which are outside and going away from the visible space
-        var killBullet = collision.testSphereBeyondCanvas(blt.pos, blt.radius, blt.speed);
+        let killBullet = collision.testSphereBeyondCanvas(blt.pos, blt.radius, blt.speed);
         if (!killBullet) {
           // Collision-detect with all asteroids
           $.each(game.asteroids, function (index, ast) {
-            var colliding = collision.detectSphereSphere(blt.pos, blt.radius, ast.pos, ast.radius);
+            let colliding = collision.detectSphereSphere(blt.pos, blt.radius, ast.pos, ast.radius);
             if (colliding) {
               // Kill bullet and asteroid
               killBullet = true;
@@ -99,17 +94,14 @@
         if (!killBullet) {
           bulletsToKeep.push(blt);
         }
-      });
+      }
 
       game.bullets = bulletsToKeep;
     },
 
     // Interval handler
-    update: function () {
-      // Get frame start time
-      game.frameTime = new Date().getTime();
-      var frameDelta = (game.frameTime - game.lastTime) / 1000;
-
+    // frameDelta: Time in seconds since last update
+    update: function (frameDelta) {
       // Update score
       game.score += frameDelta * 10;
 
@@ -129,20 +121,17 @@
       ship.draw();
 
       // Draw the asteroids
-      $.each(game.asteroids, function (index, ast) {
+      for (let ast of game.asteroids) {
         asteroid.draw(ast);
-      });
+      }
 
       // Draw the bullets
-      $.each(game.bullets, function (index, blt) {
+      for (let blt of game.bullets) {
         bullet.draw(blt);
-      });
+      }
 
       // Draw overlays
       overlays.draw(game.score, game.lives);
-
-      // Update the last frame time
-      game.lastTime = game.frameTime;
     },
 
     // Program entry point
@@ -150,8 +139,11 @@
       // Set up input
       input.createKeyboardHandlers();
 
-      // Start the timer
-      setInterval(game.update, 20);
+      // Register callbacks
+      timing.registerCallback(game.update);
+
+      // Start timers
+      timing.start();
     },
   };
 

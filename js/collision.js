@@ -7,10 +7,10 @@
     // radius1: radius of second object
     // return: true if colliding, false otherwise
     detectSphereSphere: function (pos1, radius1, pos2, radius2) {
-      var dx = pos2.x - pos1.x;
-      var dy = pos2.y - pos1.y;
-      var distSquared = dx * dx + dy * dy;
-      var sumRadius = radius1 + radius2;
+      let dx = pos2.x - pos1.x;
+      let dy = pos2.y - pos1.y;
+      let distSquared = dx * dx + dy * dy;
+      let sumRadius = radius1 + radius2;
       return distSquared < sumRadius * sumRadius;
     },
 
