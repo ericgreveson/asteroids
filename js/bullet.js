@@ -1,49 +1,54 @@
-﻿define(["canvas"], function (canvas) {
+﻿define(["canvas", "collision"], function (canvas, collision) {
   let bullet = {
-    // Radius of a bullet
-    radius: 3,
+    Bullet: class {
+      // Constructor
+      // pos: Position of the emitter {x, y}
+      // angle: Angle of the emitter, in radians from +X axis
+      // speed: Speed of the emitter {x, y}
+      constructor(pos, angle, speed) {
+        // Speed of a bullet (relative to emitter)
+        let bulletRelativeSpeed = 200;
+        let xSpeed = speed.x + Math.cos(angle) * bulletRelativeSpeed;
+        let ySpeed = speed.y + Math.sin(angle) * bulletRelativeSpeed;
 
-    // Speed of a bullet (relative to emitter)
-    speed: 200,
-
-    // Generate bullet
-    // pos: Position of the emitter {x, y}
-    // angle: Angle of the emitter, in radians from +X axis
-    // speed: Speed of the emitter {x, y}
-    // return: New bullet object
-    create: function (pos, angle, speed) {
-      // Create bullet
-      let xSpeed = speed.x + Math.cos(angle) * bullet.speed;
-      let ySpeed = speed.y + Math.sin(angle) * bullet.speed;
-
-      return {
-        color: "#00ff00",
-        pos: pos,
-        radius: bullet.radius,
-        speed: {
+        // Initialize properties
+        this.spawnTime = new Date().getTime();
+        this.timeToLive = 1.2; // seconds
+        this.radius = 3;
+        this.color = "#00ff00";
+        this.pos = {
+          x: pos.x,
+          y: pos.y
+        }
+        this.speed = {
           x: xSpeed,
           y: ySpeed
-        }
-      };
-    },
+        };
+      }
 
-    // Draw a bullet
-    // blt: Bullet to draw
-    draw: function (blt) {
-      canvas.context.fillStyle = blt.color;
-      canvas.context.beginPath();
-      canvas.context.arc(blt.pos.x, blt.pos.y, blt.radius, 0, 2 * Math.PI);
-      canvas.context.fill();
-    },
+      // Draw this bullet
+      draw() {
+        canvas.context.fillStyle = this.color;
+        canvas.context.beginPath();
+        canvas.context.arc(this.pos.x, this.pos.y, this.radius, 0, 2 * Math.PI);
+        canvas.context.fill();
+      }
 
-    // Update a bullet
-    // blt: Bullet to update
-    // frameDelta: Time since last frame, in seconds
-    update: function (blt, frameDelta) {
-      // Update positions
-      blt.pos.x += blt.speed.x * frameDelta;
-      blt.pos.y += blt.speed.y * frameDelta;
-    },
+      // Update this bullet
+      // frameDelta: Time since last frame, in seconds
+      // return: true to keep this object, false to kill it
+      update(frameDelta) {
+        // Update positions
+        this.pos.x += this.speed.x * frameDelta;
+        this.pos.y += this.speed.y * frameDelta;
+
+        // Wrap bullets around the canvas
+        canvas.wrapCoord(this.pos);
+
+        // Kill timed-out bullets
+        return (new Date().getTime() - this.spawnTime < this.timeToLive * 1000);
+      }
+    }
   };
 
   return bullet;

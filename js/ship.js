@@ -71,18 +71,7 @@
       ship.pos.x += ship.speed.x * frameDelta;
       ship.pos.y += ship.speed.y * frameDelta;
 
-      // We can fly right round the map! Wrap X and Y values
-      if (ship.pos.y < 0) {
-        ship.pos.y = canvas.canvas.height;
-      } else if (ship.pos.y >= canvas.canvas.height) {
-        ship.pos.y = 0;
-      }
-
-      if (ship.pos.x < 0) {
-        ship.pos.x = canvas.canvas.width;
-      } else if (ship.pos.x >= canvas.canvas.width) {
-        ship.pos.x = 0;
-      }
+      canvas.wrapCoord(ship.pos);
     },
 
     // Get the ship gun position

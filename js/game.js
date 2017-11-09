@@ -77,7 +77,7 @@ function ($, bullet, canvas, collision, input, overlays, ship, asteroid, timing)
       if (input.keys.spaceBar.pressed) {
         // Check enough time has elapsed
         if ((timing.frameTime - game.lastBulletCreatedTime) / 1000 > 1.0 / game.fireRate) {
-          game.bullets.push(bullet.create(ship.gunPosition(), ship.angle, ship.speed));
+          game.bullets.push(new bullet.Bullet(ship.gunPosition(), ship.angle, ship.speed));
           game.lastBulletCreatedTime = timing.frameTime;
         }
       }
@@ -85,24 +85,21 @@ function ($, bullet, canvas, collision, input, overlays, ship, asteroid, timing)
       // Update all bullets
       let bulletsToKeep = [];
       for (let blt of game.bullets) {
-        bullet.update(blt, frameDelta);
-
-        // Kill those bullets which are outside and going away from the visible space
-        let killBullet = collision.testSphereBeyondCanvas(blt.pos, blt.radius, blt.speed);
-        if (!killBullet) {
+        let keepBullet = blt.update(frameDelta);
+        if (keepBullet) {
           // Collision-detect with all asteroids
           $.each(game.asteroids, function (index, ast) {
             let colliding = collision.detectSphereSphere(blt.pos, blt.radius, ast.pos, ast.radius);
             if (colliding) {
               // Kill bullet and asteroid
-              killBullet = true;
+              keepBullet = false;
               game.asteroids.splice(index, 1);
               return false;
             }
           });
         }
 
-        if (!killBullet) {
+        if (keepBullet) {
           bulletsToKeep.push(blt);
         }
       }
@@ -138,7 +135,7 @@ function ($, bullet, canvas, collision, input, overlays, ship, asteroid, timing)
 
       // Draw the bullets
       for (let blt of game.bullets) {
-        bullet.draw(blt);
+        blt.draw();
       }
 
       // Draw overlays

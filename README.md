@@ -7,12 +7,10 @@ I'm assuming ECMAScript 2015 compatibility. It might not work on some browsers. 
 # Idea list
 Some things that might work:
 
-* Give asteroids a material, defining their color, density and so on
-* This might support some kind of mining mechanic in future (with resource acquisition / trading perhaps)
+* Materials might support some kind of mining mechanic in future (with resource acquisition / trading perhaps)
 * Asteroids, ships, and bullets can collide. They could bounce (coeff of restitution?) or split, or be destroyed
 * Give asteroids a "health" (dependent on initial mass / radius / material?) which is reduced in collisions
 * Should you be able to shoot yourself (given powerful enough engines etc)
-* Should bullets wrap around? and have a time-to-live?
 * Bullets and ships should have material / mass etc, like asteroids.
 * Bullets probably shouldn't bounce, but imagine if a laser-type weapon was supported: maybe mirrors / diamond / ice asteroids etc for an interesting weaponry mechanic?
 * Get rid of score and use money as a principal counter instead
@@ -37,3 +35,7 @@ Some things that might work:
 * Graphics: different renderers, like vector / raster (bitmap graphics) / WebGL (nicely lit 3D graphics). More of a long term project...
 * Levels: after killing asteroids, or within a certain period of time, more asteroids come along, so you can't hang about too long
 * Background moving starfield, to make your eyes go funny
+
+Done:
+* Give asteroids a material, defining their color, density and so on
+* Bullets wrap around and have a time-to-live
